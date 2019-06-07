@@ -1,5 +1,4 @@
 use rocket::Request;
-use rocket_contrib::json::Json;
 
 #[get("/")]
 pub fn index() -> &'static str {
