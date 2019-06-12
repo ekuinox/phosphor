@@ -50,6 +50,17 @@ impl User {
         return None;
     }
 
+    pub fn auth(username: String, password: String, connection: &SqliteConnection) -> Option<User> {
+        let result = users::table.filter(users::username.eq(username)).first(connection);
+        if result.is_ok() {
+            let user: User = result.unwrap();
+            if is_correct_password(&password, &user.encrypted_password) {
+                return Some(user)
+            }
+        }
+        return None;
+    }
+
     pub fn read(connection: &SqliteConnection) -> Vec<User> {
         users::table.order(users::id).load::<User>(connection).unwrap()
     }

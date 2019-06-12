@@ -20,5 +20,8 @@ impl UserLoginResponse {
 }
 
 pub fn login(request: &UserLoginRequest, connection: &SqliteConnection) -> UserLoginResponse {
-    UserLoginResponse::new(false)
+    match User::auth(request.username.clone(), request.password.clone(), &connection) {
+        Some(ok) => UserLoginResponse::new(true),
+        None => UserLoginResponse::new(false)
+    }
 }
