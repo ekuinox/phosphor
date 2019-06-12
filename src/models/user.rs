@@ -1,18 +1,25 @@
 use diesel;
 use diesel::prelude::*;
 use diesel::sqlite::SqliteConnection;
+use chrono::NaiveDateTime;
 use crate::schema::users;
 
 #[table_name = "users"]
 #[derive(AsChangeset, Serialize, Deserialize, Queryable, Insertable)]
+#[primary_key(id)]
 pub struct User {
     pub id: Option<i32>,
     pub username: String,
     pub email: String,
     pub encrypted_password: String,
+    pub created_at: Option<NaiveDateTime>
 }
 
 impl User {
+    pub fn new(username: String, email: String, password: String) -> User {
+        User { id: None, username: username, email: email, encrypted_password: password, created_at: None }
+    }
+
     pub fn create(user: User, connection: &SqliteConnection) -> User {
         diesel::insert_into(users::table)
             .values(&user)
