@@ -1,8 +1,18 @@
 use diesel;
 use diesel::prelude::*;
 use diesel::sqlite::SqliteConnection;
-use chrono::NaiveDateTime;
+use chrono::{Utc, DateTime, NaiveDateTime};
+use argon2::{self, Config};
 use crate::schema::users;
+
+fn convert_salt_from_naive_utc(date_time: &chrono::NaiveDateTime) -> String {
+    date_time.format("%s").to_string()
+}
+
+fn encrypt_password(password: &String, date_time: &chrono::NaiveDateTime) -> String {
+    let config = Config::default();
+    argon2::hash_encoded(password.as_bytes(), convert_salt_from_naive_utc(&date_time).as_bytes(), &config).unwrap()
+}
 
 #[table_name = "users"]
 #[derive(AsChangeset, Serialize, Deserialize, Queryable, Insertable)]
@@ -17,7 +27,8 @@ pub struct User {
 
 impl User {
     pub fn new(username: String, email: String, password: String) -> User {
-        User { id: None, username: username, email: email, encrypted_password: password, created_at: None }
+        let current_time = Utc::now().naive_utc();
+        User { id: None, username: username, email: email, encrypted_password: encrypt_password(&password, &current_time), created_at: Some(current_time) }
     }
 
     pub fn create(user: User, connection: &SqliteConnection) -> User {
