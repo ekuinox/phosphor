@@ -11,13 +11,14 @@ mod routes;
 mod schema;
 mod db;
 mod models;
+mod controllers;
 
 use routes::*;
 
 fn main() {
     rocket::ignite()
         .manage(db::connect())
-        .mount("/", routes![index, article_create, acount_signup])
+        .mount("/", routes![index, users::signup])
         .register(catchers![not_found])
         .launch();
 }

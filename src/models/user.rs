@@ -43,13 +43,11 @@ impl User {
         User { id: None, username: username, email: email, encrypted_password: encrypt_password(&password, &current_time), created_at: Some(current_time) }
     }
 
-    pub fn create(user: User, connection: &SqliteConnection) -> User {
-        diesel::insert_into(users::table)
-            .values(&user)
-            .execute(connection)
-            .expect("Error creating new user");
-
-        users::table.order(users::id.desc()).first(connection).unwrap()
+    pub fn create(user: User, connection: &SqliteConnection) -> Option<User> {
+        if diesel::insert_into(users::table).values(&user).execute(connection).is_ok() {
+            return Some(users::table.order(users::id.desc()).first(connection).unwrap())
+        }
+        return None;
     }
 
     pub fn read(connection: &SqliteConnection) -> Vec<User> {
