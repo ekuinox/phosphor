@@ -9,6 +9,7 @@
 mod routes;
 mod schema;
 mod db;
+mod models;
 
 use routes::*;
 
