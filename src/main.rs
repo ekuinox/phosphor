@@ -14,6 +14,7 @@ use routes::*;
 
 fn main() {
     rocket::ignite()
+        .manage(db::connect())
         .mount("/", routes![index, article_create, acount_signup])
         .register(catchers![not_found])
         .launch();
