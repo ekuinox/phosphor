@@ -14,6 +14,18 @@ fn encrypt_password(password: &String, date_time: &chrono::NaiveDateTime) -> Str
     argon2::hash_encoded(password.as_bytes(), convert_salt_from_naive_utc(&date_time).as_bytes(), &config).unwrap()
 }
 
+fn is_correct_password(password: &String, encrypted_password: &String) -> bool {
+    argon2::verify_encoded(&encrypted_password, password.as_bytes()).unwrap()
+}
+
+#[test]
+fn password_matching_test() {
+    let current_time = Utc::now().naive_utc();
+    let password = "password_matching_test".to_string();
+    let encrypted_password = encrypt_password(&password, &current_time);
+    assert!(is_correct_password(&password, &encrypted_password));
+}
+
 #[table_name = "users"]
 #[derive(AsChangeset, Serialize, Deserialize, Queryable, Insertable)]
 #[primary_key(id)]
