@@ -8,6 +8,18 @@ table! {
 }
 
 table! {
+    articles (id) {
+        id -> Nullable<Integer>,
+        user_id -> Integer,
+        title -> Text,
+        body -> Text,
+        accessible -> Integer,
+        created_at -> Nullable<Timestamp>,
+        updated_at -> Nullable<Timestamp>,
+    }
+}
+
+table! {
     users (id) {
         id -> Nullable<Integer>,
         username -> Text,
@@ -18,8 +30,10 @@ table! {
 }
 
 joinable!(access_tokens -> users (user_id));
+joinable!(articles -> users (user_id));
 
 allow_tables_to_appear_in_same_query!(
     access_tokens,
+    articles,
     users,
 );
