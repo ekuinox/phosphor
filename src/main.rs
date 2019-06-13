@@ -19,7 +19,7 @@ use routes::*;
 fn main() {
     rocket::ignite()
         .manage(db::connect())
-        .mount("/", routes![index, users::signup, users::login, access_tokens::create, access_tokens::is_valid])
+        .mount("/", routes![users::signup, users::login, access_tokens::create, access_tokens::is_valid])
         .register(catchers![catchers::bad_request, catchers::unprocessable_entity, catchers::not_found, catchers::internal_error])
         .launch();
 }
