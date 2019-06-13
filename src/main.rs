@@ -6,6 +6,7 @@
 #[macro_use] extern crate serde_json;
 #[macro_use] extern crate diesel;
 #[macro_use] extern crate argon2;
+#[macro_use] extern crate yyid;
 
 mod routes;
 mod schema;
