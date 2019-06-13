@@ -20,7 +20,7 @@ impl AccessTokenCreateResponse {
     }
 }
 
-pub fn login(request: &AccessTokenCreateRequest, connection: &SqliteConnection) -> AccessTokenCreateResponse {
+pub fn create(request: &AccessTokenCreateRequest, connection: &SqliteConnection) -> AccessTokenCreateResponse {
     match User::auth(request.username.clone(), request.password.clone(), &connection) {
         Some(user) => {
             match AccessToken::new(user.id.unwrap()).create(&connection) {

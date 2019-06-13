@@ -10,4 +10,5 @@ pub fn not_found(req: &Request) -> String {
     format!("404 {}", req)
 }
 
+pub mod access_tokens;
 pub mod users;
