@@ -1,7 +1,7 @@
 use diesel;
 use diesel::prelude::*;
 use diesel::sqlite::SqliteConnection;
-use chrono::{Utc, DateTime, NaiveDateTime};
+use chrono::{Utc, NaiveDateTime};
 use argon2::{self, Config};
 use crate::schema::users;
 
@@ -51,20 +51,21 @@ impl User {
     }
 
     pub fn auth(username: String, password: String, connection: &SqliteConnection) -> Option<User> {
-        let result = users::table.filter(users::username.eq(username)).first(connection);
-        if result.is_ok() {
-            let user: User = result.unwrap();
-            if is_correct_password(&password, &user.encrypted_password) {
-                return Some(user)
-            }
+        match users::table.filter(users::username.eq(username)).first::<User>(connection) {
+            Ok(user) => {
+                match is_correct_password(&password, &user.encrypted_password) {
+                    true => Some(user),
+                    false => None
+                }
+            },
+            Err(_) => None
         }
-        return None;
     }
 
     pub fn get(id: i32, connection: &SqliteConnection) -> Option<User> {
         match users::table.find(id).get_result(connection) {
             Ok(user) => Some(user),
-            Err(err) => None
+            Err(_) => None
         }
     }
 
