@@ -1,5 +1,3 @@
-use rocket::Request;
-
 #[derive(Debug, Serialize, Deserialize)]
 pub struct ResponseBase<T> {
     success: bool,
