@@ -9,3 +9,5 @@ matrix:
 env:
   global:
     DATABASE_URL='./test.db'
+
+cache: cargo
