@@ -1,11 +1,12 @@
 #![feature(proc_macro_hygiene, decl_macro)]
 
 #[macro_use] extern crate rocket;
-#[macro_use] extern crate rocket_contrib;
 #[macro_use] extern crate serde_derive;
-#[macro_use] extern crate serde_json;
 #[macro_use] extern crate diesel;
-#[macro_use] extern crate argon2;
+extern crate rocket_contrib;
+extern crate serde_json;
+extern crate argon2;
+extern crate yyid;
 
 mod routes;
 mod schema;
@@ -18,7 +19,7 @@ use routes::*;
 fn main() {
     rocket::ignite()
         .manage(db::connect())
-        .mount("/", routes![index, users::signup, users::login])
-        .register(catchers![not_found])
+        .mount("/", routes![index, users::signup, users::login, access_tokens::create, access_tokens::is_valid])
+        .register(catchers![catchers::bad_request, catchers::unprocessable_entity, catchers::not_found, catchers::internal_error])
         .launch();
 }
