@@ -30,7 +30,7 @@ impl AccessToken {
     }
 
     pub fn auth(token: &String, connection: &SqliteConnection) -> Option<AccessToken> {
-        match access_tokens::table.filter(access_tokens::token.eq(&token)).first(connection) {
+        match access_tokens::table.find(&token).first(connection) {
             Ok(access_token) => Some(access_token),
             Err(_) => None
         }
