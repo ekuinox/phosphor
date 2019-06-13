@@ -1,7 +1,5 @@
 # phosphor
 
----
-
 [![Build Status](https://travis-ci.org/ekuinox/phosphor.svg?branch=master)](https://travis-ci.org/ekuinox/phosphor)
 
 ## これは何
