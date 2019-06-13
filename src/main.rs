@@ -1,12 +1,12 @@
 #![feature(proc_macro_hygiene, decl_macro)]
 
 #[macro_use] extern crate rocket;
-#[macro_use] extern crate rocket_contrib;
 #[macro_use] extern crate serde_derive;
-#[macro_use] extern crate serde_json;
 #[macro_use] extern crate diesel;
-#[macro_use] extern crate argon2;
-#[macro_use] extern crate yyid;
+extern crate rocket_contrib;
+extern crate serde_json;
+extern crate argon2;
+extern crate yyid;
 
 mod routes;
 mod schema;
