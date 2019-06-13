@@ -1,9 +1,10 @@
 use diesel;
 use diesel::prelude::*;
 use diesel::sqlite::SqliteConnection;
-use chrono::NaiveDateTime;
+use chrono::{Utc, NaiveDateTime};
 use yyid::yyid_string;
 use crate::schema::access_tokens;
+use crate::models::user::User;
 
 #[table_name = "access_tokens"]
 #[derive(AsChangeset, Serialize, Deserialize, Queryable, Insertable, Clone)]
@@ -17,7 +18,8 @@ pub struct AccessToken {
 
 impl AccessToken {
     pub fn new(user_id: i32) -> AccessToken {
-        AccessToken { token: Some(yyid_string()), user_id: user_id, created_at: None, updated_at: None }
+        let now = Utc::now().naive_utc();
+        AccessToken { token: Some(yyid_string()), user_id: user_id, created_at: Some(now), updated_at: Some(now) }
     }
 
     pub fn create(&self, connection: &SqliteConnection) -> Option<AccessToken> {
@@ -28,12 +30,23 @@ impl AccessToken {
         return Some(self.clone())
     }
 
-    pub fn auth(token: String, connection: &SqliteConnection) -> Option<i32> {
-        let result = access_tokens::table.find(token).first(connection);
-        if result.is_ok() {
-            let access_token: AccessToken = result.unwrap();
-            return Some(access_token.user_id)
+    pub fn auth(token: &String, connection: &SqliteConnection) -> Option<AccessToken> {
+        match access_tokens::table.filter(access_tokens::token.eq(&token)).first(connection) {
+            Ok(access_token) => Some(access_token),
+            Err(err) => {
+                println!("{:?}", err);
+                return None;
+            }
         }
-        return None;
+    }
+}
+
+pub trait ToUser {
+    fn to_user(&self, connection: &SqliteConnection) -> Option<User>;
+}
+
+impl ToUser for AccessToken {
+    fn to_user(&self, connection: &SqliteConnection) -> Option<User> {
+        User::get(self.user_id, &connection)
     }
 }

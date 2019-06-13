@@ -61,6 +61,13 @@ impl User {
         return None;
     }
 
+    pub fn get(id: i32, connection: &SqliteConnection) -> Option<User> {
+        match users::table.find(id).get_result(connection) {
+            Ok(user) => Some(user),
+            Err(err) => None
+        }
+    }
+
     pub fn read(connection: &SqliteConnection) -> Vec<User> {
         users::table.order(users::id).load::<User>(connection).unwrap()
     }
@@ -71,5 +78,49 @@ impl User {
 
     pub fn delete(id: i32, connection: &SqliteConnection) -> bool {
         diesel::delete(users::table.find(id)).execute(connection).is_ok()
+    }
+}
+
+// 全ユーザに公開する
+#[derive(Debug, Serialize, Deserialize)]
+pub struct PublicUserData {
+    pub id: i32,
+    pub username: String
+}
+
+pub trait ToPublic {
+    fn to_public(&self) -> PublicUserData;
+}
+
+impl ToPublic for User {
+    fn to_public(&self) -> PublicUserData {
+        PublicUserData {
+            id: self.id.unwrap(),
+            username: self.username.clone()
+        }
+    }
+}
+
+// ユーザ自身に公開する
+#[derive(Debug, Serialize, Deserialize)]
+pub struct PrivateUserData {
+    pub id: i32,
+    pub username: String,
+    pub email: String,
+    pub created_at: NaiveDateTime
+}
+
+pub trait ToPrivate {
+    fn to_private(&self) -> PrivateUserData;
+}
+
+impl ToPrivate for User {
+    fn to_private(&self) -> PrivateUserData {
+        PrivateUserData {
+            id: self.id.unwrap(),
+            username: self.username.clone(),
+            email: self.email.clone(),
+            created_at: self.created_at.unwrap()
+        }
     }
 }
