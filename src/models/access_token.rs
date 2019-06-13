@@ -16,6 +16,9 @@ pub struct AccessToken {
     pub updated_at: Option<NaiveDateTime>
 }
 
+// 24時間更新がない場合死ぬ
+const expired_hours: i64 = 24;
+
 impl AccessToken {
     pub fn new(user_id: i32) -> AccessToken {
         let now = Utc::now().naive_utc();
@@ -30,10 +33,24 @@ impl AccessToken {
     }
 
     pub fn auth(token: &String, connection: &SqliteConnection) -> Option<AccessToken> {
-        match access_tokens::table.find(&token).first(connection) {
-            Ok(access_token) => Some(access_token),
+        match access_tokens::table.find(&token).first::<AccessToken>(connection) {
+            Ok(access_token) => {
+                if Utc::now().naive_utc() - access_token.updated_at.unwrap() < chrono::Duration::hours(expired_hours) {
+                    access_token.touch(connection);
+                    return Some(access_token);
+                }
+                return None;
+            },
             Err(_) => None
         }
+    }
+
+    // updated_atを更新する
+    pub fn touch(&self, connection: &SqliteConnection) -> AccessToken {
+        let mut access_token: AccessToken = self.clone();
+        access_token.updated_at = Some(Utc::now().naive_utc());
+        diesel::update(access_tokens::table.find(&access_token.token)).set(&access_token).execute(connection).unwrap();
+        return access_token;
     }
 }
 
