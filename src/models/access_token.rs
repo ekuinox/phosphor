@@ -23,20 +23,16 @@ impl AccessToken {
     }
 
     pub fn create(&self, connection: &SqliteConnection) -> Option<AccessToken> {
-        let result = diesel::insert_into(access_tokens::table).values(self).execute(connection);
-        if result.is_err() {
-            return None;
+        match diesel::insert_into(access_tokens::table).values(self).execute(connection) {
+            Ok(_) => Some(self.clone()),
+            Err(_) => None
         }
-        return Some(self.clone())
     }
 
     pub fn auth(token: &String, connection: &SqliteConnection) -> Option<AccessToken> {
         match access_tokens::table.filter(access_tokens::token.eq(&token)).first(connection) {
             Ok(access_token) => Some(access_token),
-            Err(err) => {
-                println!("{:?}", err);
-                return None;
-            }
+            Err(_) => None
         }
     }
 }
