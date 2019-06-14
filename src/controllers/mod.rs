@@ -22,4 +22,5 @@ impl <T> ResponseBase<T> {
 }
 
 pub mod access_tokens;
+pub mod articles;
 pub mod users;
