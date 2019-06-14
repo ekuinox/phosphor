@@ -16,7 +16,7 @@ define_enum! {
 }
 
 #[table_name = "articles"]
-#[derive(AsChangeset, Serialize, Deserialize, Queryable, Insertable, Clone)]
+#[derive(Debug, AsChangeset, Serialize, Deserialize, Queryable, Insertable, Clone)]
 #[primary_key(id)]
 pub struct Article {
     pub id: Option<i32>,
@@ -29,7 +29,7 @@ pub struct Article {
     pub updated_at: Option<NaiveDateTime>
 }
 
-#[derive(Serialize, Deserialize, Clone)]
+#[derive(Debug, Serialize, Deserialize, Clone)]
 pub struct PermalinksListData {
     pub permalink: String,
     pub title: String,
