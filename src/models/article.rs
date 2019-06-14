@@ -91,7 +91,7 @@ impl Article {
 
     // user_idを元に記事のpermalinkリストを取得する
     pub fn get_list_by_user_id(user_id: i32, count: i64, connection: &SqliteConnection) -> Option<Vec<PermalinksListData>> {
-        match articles::table.filter(articles::user_id.eq(user_id)).order(articles::updated_at).limit(count).get_results::<Article>(connection) {
+        match articles::table.filter(articles::user_id.eq(user_id)).order(articles::updated_at.desc()).limit(count).get_results::<Article>(connection) {
             Ok(users_articles) => {
                 Some(users_articles.iter().map(|article| article.to_permalink_list_data()).collect::<Vec<_>>())
             },
