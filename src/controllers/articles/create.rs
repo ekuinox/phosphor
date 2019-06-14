@@ -1,5 +1,6 @@
 use diesel::sqlite::SqliteConnection;
 use serde::{Deserialize, Serialize};
+use yyid::yyid_string;
 use crate::models::{access_token::AccessToken, user::User, article::Article, article::Accessible};
 
 #[derive(Debug, Serialize, Deserialize)]
@@ -7,7 +8,7 @@ pub struct Request {
     token: String,
     title: String,
     body: String,
-    permalink: String,
+    permalink: Option<String>,
     accessible: Option<Accessible>
 }
 
@@ -30,7 +31,10 @@ pub fn create(request: &Request, connection: &SqliteConnection) -> Response {
                 access_token.user_id.clone(),
                 request.title.clone(),
                 request.body.clone(),
-                request.permalink.clone(),
+                match &request.permalink {
+                    Some(permalink) => permalink.clone(),
+                    None => yyid_string()
+                },
                 request.accessible.unwrap_or(Accessible::Public)
                 ).insert(connection) {
                 Some(article) => Response::new(true, Some(article)),
