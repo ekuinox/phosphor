@@ -3,6 +3,17 @@ use diesel::prelude::*;
 use diesel::sqlite::SqliteConnection;
 use chrono::{Utc, NaiveDateTime};
 use crate::schema::articles;
+use crate::define_enum;
+
+define_enum! {
+    #[derive(Debug, Clone, Copy, Serialize, Deserialize)]
+    pub enum Accessible {
+        Draft = 0,
+        Private = 1,
+        Protected = 2,
+        Public = 3,
+    }
+}
 
 #[table_name = "articles"]
 #[derive(AsChangeset, Serialize, Deserialize, Queryable, Insertable, Clone)]
@@ -12,7 +23,8 @@ pub struct Article {
     pub user_id: i32,
     pub title: String,
     pub body: String,
-    pub accessible: i32,
+    pub accessible: Accessible,
     pub created_at: Option<NaiveDateTime>,
     pub updated_at: Option<NaiveDateTime>
 }
+
