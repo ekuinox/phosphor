@@ -14,11 +14,12 @@ pub struct Request {
 #[derive(Debug, Serialize, Deserialize)]
 pub struct Response {
     success: bool,
+    data: Option<Article>
 }
 
 impl Response {
-    pub fn new(success: bool) -> Response {
-        Response { success: success }
+    pub fn new(success: bool, data: Option<Article>) -> Response {
+        Response { success: success, data: data }
     }
 }
 
@@ -32,10 +33,10 @@ pub fn create(request: &Request, connection: &SqliteConnection) -> Response {
                 request.permalink.clone(),
                 request.accessible.unwrap_or(Accessible::Public)
                 ).insert(connection) {
-                Some(article) => Response::new(true),
-                None => Response::new(false)
+                Some(article) => Response::new(true, Some(article)),
+                None => Response::new(false, None)
             }
         },
-        None => Response::new(false)
+        None => Response::new(false, None)
     }
 }
