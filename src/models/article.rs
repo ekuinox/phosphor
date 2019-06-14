@@ -28,3 +28,38 @@ pub struct Article {
     pub updated_at: Option<NaiveDateTime>
 }
 
+impl Article {
+    pub fn new(id: Option<i32>, user_id: i32, title: String, body: String, accessible: Accessible, created_at: Option<NaiveDateTime>,updated_at: Option<NaiveDateTime>) -> Article {
+        Article {
+            id: id,
+            user_id: user_id,
+            title: title,
+            body: body,
+            accessible: accessible,
+            created_at: created_at,
+            updated_at: updated_at
+        }
+    }
+
+    // 現在時刻でArticleを生成する
+    pub fn new_with_now(user_id: i32, title: String, body: String, accessible: Accessible) -> Article {
+        let now = Utc::now().naive_utc();
+        Self::new(None, user_id, title, body, accessible, Some(now), Some(now))
+    }
+
+    // selfをテーブルに挿入する
+    pub fn insert(&self, connection: &SqliteConnection) -> Option<Article> {
+        match diesel::insert_into(articles::table).values(self).execute(connection) {
+            Ok(_) => Some(self.clone()),
+            Err(_) => None
+        }
+    }
+
+    // user_idを元に記事を取得する
+    pub fn get_by_user_id(user_id: i32, connection: &SqliteConnection) -> Option<Vec<Article>> {
+        match articles::table.filter(articles::user_id.eq(user_id)).get_results::<Article>(connection) {
+            Ok(users_articles) => Some(users_articles),
+            Err(_) => None
+        }
+    }
+}
