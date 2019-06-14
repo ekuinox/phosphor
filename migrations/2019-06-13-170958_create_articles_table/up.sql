@@ -4,7 +4,7 @@ create table articles (
     user_id integer not null,
     title text not null,
     body text not null,
-    permalink text not null,
+    permalink text unique not null,
     accessible integer not null,
     created_at datetime default current_date,
     updated_at datetime default current_date,
