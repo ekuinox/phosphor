@@ -13,6 +13,7 @@ table! {
         user_id -> Integer,
         title -> Text,
         body -> Text,
+        permalink -> Text,
         accessible -> Integer,
         created_at -> Nullable<Timestamp>,
         updated_at -> Nullable<Timestamp>,

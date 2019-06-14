@@ -23,18 +23,29 @@ pub struct Article {
     pub user_id: i32,
     pub title: String,
     pub body: String,
+    pub permalink: String,
     pub accessible: Accessible,
     pub created_at: Option<NaiveDateTime>,
     pub updated_at: Option<NaiveDateTime>
 }
 
 impl Article {
-    pub fn new(id: Option<i32>, user_id: i32, title: String, body: String, accessible: Accessible, created_at: Option<NaiveDateTime>,updated_at: Option<NaiveDateTime>) -> Article {
+    pub fn new(
+        id: Option<i32>,
+        user_id: i32,
+        title: String,
+        body: String,
+        permalink: String,
+        accessible: Accessible,
+        created_at: Option<NaiveDateTime>,
+        updated_at: Option<NaiveDateTime>
+        ) -> Article {
         Article {
             id: id,
             user_id: user_id,
             title: title,
             body: body,
+            permalink: permalink,
             accessible: accessible,
             created_at: created_at,
             updated_at: updated_at
@@ -42,9 +53,9 @@ impl Article {
     }
 
     // 現在時刻でArticleを生成する
-    pub fn new_with_now(user_id: i32, title: String, body: String, accessible: Accessible) -> Article {
+    pub fn new_with_now(user_id: i32, title: String, body: String, permalink: String, accessible: Accessible) -> Article {
         let now = Utc::now().naive_utc();
-        Self::new(None, user_id, title, body, accessible, Some(now), Some(now))
+        Self::new(None, user_id, title, body, permalink, accessible, Some(now), Some(now))
     }
 
     // selfをテーブルに挿入する
