@@ -47,8 +47,7 @@ impl AccessToken {
 
     // updated_atを更新する
     pub fn touch(&self, connection: &SqliteConnection) -> AccessToken {
-        let mut access_token: AccessToken = self.clone();
-        access_token.updated_at = Some(Utc::now().naive_utc());
+        let access_token = AccessToken { updated_at: Some(Utc::now().naive_utc()), .. self.clone() };
         diesel::update(access_tokens::table.find(&access_token.token)).set(&access_token).execute(connection).unwrap();
         return access_token;
     }
