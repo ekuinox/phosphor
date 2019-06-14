@@ -1,4 +1,4 @@
-#![feature(proc_macro_hygiene, decl_macro)]
+#![feature(proc_macro_hygiene, decl_macro, custom_attribute)]
 
 #[macro_use] extern crate rocket;
 #[macro_use] extern crate serde_derive;
@@ -13,13 +13,14 @@ mod schema;
 mod db;
 mod models;
 mod controllers;
+mod macros;
 
 use routes::*;
 
 fn main() {
     rocket::ignite()
         .manage(db::connect())
-        .mount("/", routes![index, users::signup, users::login, access_tokens::create, access_tokens::is_valid])
+        .mount("/", routes![users::signup, users::login, access_tokens::create, access_tokens::touch, articles::create, articles::list, articles::show])
         .register(catchers![catchers::bad_request, catchers::unprocessable_entity, catchers::not_found, catchers::internal_error])
         .launch();
 }

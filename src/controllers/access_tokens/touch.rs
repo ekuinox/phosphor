@@ -13,7 +13,7 @@ pub struct Response {
     user: Option<PrivateUserData>
 }
 
-pub fn is_valid(request: &Request, connection: &SqliteConnection) -> Response {
+pub fn touch(request: &Request, connection: &SqliteConnection) -> Response {
     match AccessToken::auth(&request.token, &connection) {
         Some(access_token) => {
             match access_token.to_user(&connection) {

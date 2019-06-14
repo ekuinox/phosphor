@@ -1,8 +1,8 @@
 # phosphor
 
----
-
 [![Build Status](https://travis-ci.org/ekuinox/phosphor.svg?branch=master)](https://travis-ci.org/ekuinox/phosphor)
+
+Feintの[Phosphor](https://www.youtube.com/watch?v=gMt3civOT7g)という曲がとてもいいので聴いてください
 
 ## これは何
 
