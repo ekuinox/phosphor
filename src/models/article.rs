@@ -29,6 +29,13 @@ pub struct Article {
     pub updated_at: Option<NaiveDateTime>
 }
 
+#[derive(Serialize, Deserialize, Clone)]
+pub struct PermalinksListData {
+    pub permalink: String,
+    pub title: String,
+    pub updated_at: NaiveDateTime
+}
+
 impl Article {
     pub fn new(
         id: Option<i32>,
@@ -66,11 +73,44 @@ impl Article {
         }
     }
 
+    // 記事permalinkより記事を取得する
+    pub fn get_by_permalink(permalink: String, connection: &SqliteConnection) -> Option<Article> {
+        match articles::table.filter(articles::permalink.eq(permalink)).first::<Article>(connection) {
+            Ok(article) => Some(article),
+            Err(_) => None
+        }
+    }
+
     // user_idを元に記事を取得する
     pub fn get_by_user_id(user_id: i32, connection: &SqliteConnection) -> Option<Vec<Article>> {
         match articles::table.filter(articles::user_id.eq(user_id)).get_results::<Article>(connection) {
             Ok(users_articles) => Some(users_articles),
             Err(_) => None
+        }
+    }
+
+    // user_idを元に記事のpermalinkリストを取得する
+    pub fn get_list_by_user_id(user_id: i32, count: i64, connection: &SqliteConnection) -> Option<Vec<PermalinksListData>> {
+        match articles::table.filter(articles::user_id.eq(user_id)).order(articles::updated_at).limit(count).get_results::<Article>(connection) {
+            Ok(users_articles) => {
+                Some(users_articles.iter().map(|article| article.to_permalink_list_data()).collect::<Vec<_>>())
+            },
+            Err(_) => None
+        }
+
+    }
+}
+
+pub trait ToPermalinkListData {
+    fn to_permalink_list_data(&self) -> PermalinksListData;
+}
+
+impl ToPermalinkListData for Article {
+    fn to_permalink_list_data(&self) -> PermalinksListData {
+        PermalinksListData {
+            permalink: self.permalink.clone(),
+            title: self.title.clone(),
+            updated_at: self.updated_at.unwrap()
         }
     }
 }
