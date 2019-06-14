@@ -1,3 +1,5 @@
+// 参考元 https://ryym.tokyo/posts/diesel-enum/
+
 #[macro_export]
 macro_rules! define_enum {
     (
