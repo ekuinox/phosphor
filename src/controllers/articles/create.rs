@@ -7,7 +7,8 @@ pub struct Request {
     token: String,
     title: String,
     body: String,
-    permalink: String
+    permalink: String,
+    accessible: Option<Accessible>
 }
 
 #[derive(Debug, Serialize, Deserialize)]
@@ -24,7 +25,13 @@ impl Response {
 pub fn create(request: &Request, connection: &SqliteConnection) -> Response {
     match AccessToken::auth(&request.token, &connection) {
         Some(access_token) => {
-            match Article::new_with_now(access_token.user_id.clone(), request.title.clone(), request.body.clone(), request.permalink.clone(), Accessible::Public).insert(connection) {
+            match Article::new_with_now(
+                access_token.user_id.clone(),
+                request.title.clone(),
+                request.body.clone(),
+                request.permalink.clone(),
+                request.accessible.unwrap_or(Accessible::Public)
+                ).insert(connection) {
                 Some(article) => Response::new(true),
                 None => Response::new(false)
             }
