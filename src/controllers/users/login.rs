@@ -1,6 +1,6 @@
-use crate::models::user::User;
 use diesel::sqlite::SqliteConnection;
 use serde::{Deserialize, Serialize};
+use crate::models::user::{User, Authenticate, BasicCredentials};
 
 #[derive(Debug, Serialize, Deserialize)]
 pub struct Request {
@@ -20,7 +20,7 @@ impl Response {
 }
 
 pub fn login(request: &Request, connection: &SqliteConnection) -> Response {
-    match User::auth(request.username.clone(), request.password.clone(), &connection) {
+    match User::auth(BasicCredentials::new(request.username.clone(), request.password.clone()), &connection) {
         Some(_) => Response::new(true),
         None => Response::new(false)
     }

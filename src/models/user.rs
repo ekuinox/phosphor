@@ -4,6 +4,7 @@ use diesel::sqlite::SqliteConnection;
 use chrono::{Utc, NaiveDateTime};
 use argon2::{self, Config};
 use crate::schema::users;
+use crate::models::access_token::AccessToken;
 
 fn convert_salt_from_naive_utc(date_time: &chrono::NaiveDateTime) -> String {
     date_time.format("%s").to_string()
@@ -50,18 +51,6 @@ impl User {
         return None;
     }
 
-    pub fn auth(username: String, password: String, connection: &SqliteConnection) -> Option<User> {
-        match users::table.filter(users::username.eq(username)).first::<User>(connection) {
-            Ok(user) => {
-                match is_correct_password(&password, &user.encrypted_password) {
-                    true => Some(user),
-                    false => None
-                }
-            },
-            Err(_) => None
-        }
-    }
-
     pub fn get(id: i32, connection: &SqliteConnection) -> Option<User> {
         match users::table.find(id).get_result(connection) {
             Ok(user) => Some(user),
@@ -79,6 +68,42 @@ impl User {
 
     pub fn delete(id: i32, connection: &SqliteConnection) -> bool {
         diesel::delete(users::table.find(id)).execute(connection).is_ok()
+    }
+}
+
+// 認証
+pub trait Authenticate<T> {
+    fn auth(c: T, connection: &SqliteConnection) -> Option<User>;
+}
+
+pub struct BasicCredentials {
+    pub username: String,
+    pub password: String
+}
+
+impl BasicCredentials {
+    pub fn new(username: String, password: String) -> BasicCredentials {
+        BasicCredentials { username: username, password: password }
+    }
+}
+
+impl Authenticate<BasicCredentials> for User {
+    fn auth(c: BasicCredentials, connection: &SqliteConnection) -> Option<User> {
+        match users::table.filter(users::username.eq(c.username)).first::<User>(connection) {
+            Ok(user) => {
+                match is_correct_password(&c.password, &user.encrypted_password) {
+                    true => Some(user),
+                    false => None
+                }
+            },
+            Err(_) => None
+        }
+    }
+}
+
+impl Authenticate<AccessToken> for User {
+    fn auth(c: AccessToken, connection: &SqliteConnection) -> Option<User> {
+        User::get(c.user_id, &connection)
     }
 }
 

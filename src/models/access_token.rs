@@ -4,7 +4,7 @@ use diesel::sqlite::SqliteConnection;
 use chrono::{Utc, NaiveDateTime};
 use yyid::yyid_string;
 use crate::schema::access_tokens;
-use crate::models::user::User;
+use crate::models::user::{User, Authenticate};
 
 #[table_name = "access_tokens"]
 #[derive(AsChangeset, Serialize, Deserialize, Queryable, Insertable, Clone)]

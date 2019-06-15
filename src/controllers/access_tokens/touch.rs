@@ -16,7 +16,7 @@ pub struct Response {
 pub fn touch(request: &Request, connection: &SqliteConnection) -> Response {
     match AccessToken::auth(&request.token, &connection) {
         Some(access_token) => {
-            match access_token.to_user(&connection) {
+            match User::auth(access_token, &connection) {
                 Some(user) => Response { success: true, user: Some(user.to_private()) },
                 None => Response { success: false, user: None }
             }
