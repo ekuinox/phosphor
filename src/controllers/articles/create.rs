@@ -1,7 +1,7 @@
 use diesel::sqlite::SqliteConnection;
 use serde::{Deserialize, Serialize};
 use yyid::yyid_string;
-use crate::models::{access_token::AccessToken, user::User, article::Article, article::Accessible};
+use crate::models::{access_token::AccessToken, user::User, user::Authenticate, article::Article, article::Accessible};
 
 #[derive(Debug, Serialize, Deserialize)]
 pub struct Request {
@@ -25,10 +25,10 @@ impl Response {
 }
 
 pub fn create(request: &Request, connection: &SqliteConnection) -> Response {
-    match AccessToken::from_string(&request.token, &connection) {
-        Some(access_token) => {
+    match User::auth(&request.token, &connection) {
+        Some(user) => {
             match Article::new_with_now(
-                access_token.user_id.clone(),
+                user.id.unwrap(),
                 request.title.clone(),
                 request.body.clone(),
                 match &request.permalink {

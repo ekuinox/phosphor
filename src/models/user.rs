@@ -107,6 +107,15 @@ impl Authenticate<AccessToken> for User {
     }
 }
 
+
+// 文字列をtokenとして
+impl Authenticate<&String> for User {
+    fn auth(c: &String, connection: &SqliteConnection) -> Option<User> {
+        Self::auth(AccessToken::from_string(&c, &connection)?, &connection)
+    }
+}
+
+
 // 全ユーザに公開する
 #[derive(Debug, Serialize, Deserialize)]
 pub struct PublicUserData {
