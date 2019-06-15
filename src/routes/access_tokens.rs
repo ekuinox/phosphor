@@ -4,7 +4,7 @@ use crate::db;
 
 // ログイン
 #[post("/access_tokens/create", data = "<request>")]
-pub fn create(request: Json<create::AccessTokenCreateRequest>, connection: db::Connection) -> Json<create::AccessTokenCreateResponse> {
+pub fn create(request: Json<create::Request>, connection: db::Connection) -> Json<create::Response> {
     Json(create::create(&request, &connection))
 }
 

@@ -3,7 +3,7 @@ use diesel::sqlite::SqliteConnection;
 use serde::{Deserialize, Serialize};
 
 #[derive(Debug, Serialize, Deserialize)]
-pub struct UserSignupRequest {
+pub struct Request {
     username: String,
     password: String,
     email: String
@@ -23,35 +23,35 @@ impl UserShow {
 }
 
 #[derive(Debug, Serialize, Deserialize)]
-pub struct UserSignupResponse {
+pub struct Response {
     success: bool,
     user: Option<UserShow>,
     error_message: Option<String>
 }
 
-trait UserSignupResponseNew<T> {
-    fn new(c: T) -> UserSignupResponse;
+trait ResponseNew<T> {
+    fn new(c: T) -> Response;
 }
 
-impl UserSignupResponseNew<User> for UserSignupResponse {
-    fn new(user: User) -> UserSignupResponse {
-        UserSignupResponse { success: true, user: Some(UserShow::new(user.username, user.id.unwrap(), user.email)), error_message: None }
+impl ResponseNew<User> for Response {
+    fn new(user: User) -> Response {
+        Response { success: true, user: Some(UserShow::new(user.username, user.id.unwrap(), user.email)), error_message: None }
     }
 }
 
-impl UserSignupResponseNew<String> for UserSignupResponse {
-    fn new(error_message: String) -> UserSignupResponse {
-        UserSignupResponse { success: false, user: None, error_message: Some(error_message) }
+impl ResponseNew<String> for Response {
+    fn new(error_message: String) -> Response {
+        Response { success: false, user: None, error_message: Some(error_message) }
     }
 }
 
-pub fn signup(request: &UserSignupRequest, connection: &SqliteConnection) -> UserSignupResponse {
+pub fn signup(request: &Request, connection: &SqliteConnection) -> Response {
     if !request.username.is_ascii() {
-        return UserSignupResponse { success: false, user: None, error_message: Some("username must be ascii".to_string()) };
+        return Response { success: false, user: None, error_message: Some("username must be ascii".to_string()) };
     }
 
     match User::create(User::new(request.username.clone(),  request.email.clone(), request.password.clone()), &connection) {
-        Some(user) => UserSignupResponse::new(user),
-        None => UserSignupResponse::new("".to_string())
+        Some(user) => Response::new(user),
+        None => Response::new("".to_string())
     }
 }
