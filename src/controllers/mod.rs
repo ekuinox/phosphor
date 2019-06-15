@@ -1,23 +1,25 @@
 #[derive(Debug, Serialize, Deserialize)]
-pub struct ResponseBase<T> {
+pub struct ResponseBase<T, E> {
     pub success: bool,
-    pub data: T
+    pub data: Option<T>,
+    pub error: Option<E>
 }
 
-impl <T> ResponseBase<T> {
-    pub fn new(success: bool, data: T) -> ResponseBase<T> {
+impl <T, E> ResponseBase<T, E> {
+    pub fn new(success: bool, data: Option<T>, error: Option<E>) -> ResponseBase<T, E> {
         ResponseBase {
             success: success,
-            data: data
+            data: data,
+            error: error
         }
     }
     
-    pub fn success(data: T) -> ResponseBase<T> {
-        ResponseBase::new(true, data)
+    pub fn success(data: T) -> ResponseBase<T, E> {
+        ResponseBase::new(true, Some(data), None)
     }
 
-    pub fn fail(data: T) -> ResponseBase<T> {
-        ResponseBase::new(false, data)
+    pub fn fail(error: E) -> ResponseBase<T, E> {
+        ResponseBase::new(false, None, Some(error))
     }
 }
 

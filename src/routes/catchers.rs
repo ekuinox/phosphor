@@ -13,7 +13,7 @@ impl Error {
     }
 }
 
-pub type ErrorResponse = ResponseBase<Error>;
+pub type ErrorResponse = ResponseBase<(), Error>;
 
 #[catch(400)]
 pub fn bad_request(_request: &Request) -> Json<ErrorResponse> {
