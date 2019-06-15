@@ -41,12 +41,12 @@ pub type Response = ResponseBase<Data>;
 
 pub fn create(request: &Request, connection: &SqliteConnection) -> Response {
     match User::auth(BasicCredentials::new(request.username.clone(), request.password.clone()), &connection) {
-        Some(user) => {
+        Ok(user) => {
             match AccessToken::new(user.id.unwrap()).create(&connection) {
                 Some(access_token) => Response::success(Data::new(access_token.token.unwrap())),
                 None => Response::fail(Error::InternalError)
             }
         },
-        None => Response::fail(Error::BadCredentials)
+        Err(_) => Response::fail(Error::BadCredentials)
     }
 }

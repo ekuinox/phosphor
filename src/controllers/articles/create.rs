@@ -28,7 +28,7 @@ pub type Response = ResponseBase<Data>;
 
 pub fn create(request: &Request, connection: &SqliteConnection) -> Response {
     match User::auth(&request.token, &connection) {
-        Some(user) => {
+        Ok(user) => {
             match Article::new_with_now(
                 user.id.unwrap(),
                 request.title.clone(),
@@ -43,6 +43,6 @@ pub fn create(request: &Request, connection: &SqliteConnection) -> Response {
                 None => Response::fail(())
             }
         },
-        None => Response::fail(())
+        Err(_) => Response::fail(())
     }
 }

@@ -24,12 +24,12 @@ pub type Response = ResponseBase<Data>;
 
 pub fn show(request: &Request, connection: &SqliteConnection) -> Response {
     match User::auth(&request.token, &connection) {
-        Some(user) => {
+        Ok(user) => {
             match Article::get_by_permalink(request.permalink.clone(), &connection) {
                 Some(article) => Response::success(Data::new(article)),
                 None => Response::fail(())
             }
         },
-        None => Response::fail(())
+        Err(_) => Response::fail(())
     }
 }

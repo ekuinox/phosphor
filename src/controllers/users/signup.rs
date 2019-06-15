@@ -29,7 +29,7 @@ pub fn signup(request: &Request, connection: &SqliteConnection) -> Response {
     }
 
     match User::create(User::new(request.username.clone(),  request.email.clone(), request.password.clone()), &connection) {
-        Some(user) => Response::success(Data::new(user.to_private())),
-        None => Response::fail(())
+        Ok(user) => Response::success(Data::new(user.to_private())),
+        Err(_) => Response::fail(())
     }
 }

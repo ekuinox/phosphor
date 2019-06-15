@@ -40,7 +40,7 @@ pub type Response = ResponseBase<Data>;
 
 pub fn touch(request: &Request, connection: &SqliteConnection) -> Response {
     match User::auth(&request.token, &connection) {
-        Some(user) => Response::success(Data::new(user.to_private())),
-        None => Response::fail(Error::BadCredentials)
+        Ok(user) => Response::success(Data::new(user.to_private())),
+        Err(_) => Response::fail(Error::BadCredentials)
     }
 }

@@ -23,12 +23,12 @@ pub type Response = ResponseBase<Data>;
 
 pub fn list(request: &Request, connection: &SqliteConnection) -> Response {
     match User::auth(&request.token, &connection) {
-        Some(user) => {
+        Ok(user) => {
             match Article::get_list_by_user_id(user.id.unwrap(), 500, &connection) {
                 Some(permalinks) => Response::success(Data::new(permalinks)),
                 None => Response::fail(())
             }
         },
-        None => Response::fail(())
+        Err(_) => Response::fail(())
     }
 }

@@ -49,13 +49,3 @@ impl AccessToken {
         return access_token;
     }
 }
-
-pub trait ToUser {
-    fn to_user(&self, connection: &SqliteConnection) -> Option<User>;
-}
-
-impl ToUser for AccessToken {
-    fn to_user(&self, connection: &SqliteConnection) -> Option<User> {
-        User::get(self.user_id, &connection)
-    }
-}

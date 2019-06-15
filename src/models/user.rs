@@ -38,23 +38,31 @@ pub struct User {
     pub created_at: Option<NaiveDateTime>
 }
 
+#[derive(Debug, Serialize, Deserialize)]
+pub enum Error {
+    NotFound,
+    InvalidAccessToken,
+    BadCredentials,
+    Unknown
+}
+
 impl User {
     pub fn new(username: String, email: String, password: String) -> User {
         let current_time = Utc::now().naive_utc();
         User { id: None, username: username, email: email, encrypted_password: encrypt_password(&password, &current_time), created_at: Some(current_time) }
     }
 
-    pub fn create(user: User, connection: &SqliteConnection) -> Option<User> {
-        if diesel::insert_into(users::table).values(&user).execute(connection).is_ok() {
-            return Some(users::table.order(users::id.desc()).first(connection).unwrap())
+    pub fn create(user: User, connection: &SqliteConnection) -> Result<User, Error> {
+        match diesel::insert_into(users::table).values(&user).execute(connection) {
+            Ok(_) => Ok(users::table.order(users::id.desc()).first(connection).unwrap()),
+            Err(_) => Err(Error::Unknown)
         }
-        return None;
     }
 
-    pub fn get(id: i32, connection: &SqliteConnection) -> Option<User> {
+    pub fn get(id: i32, connection: &SqliteConnection) -> Result<User, Error> {
         match users::table.find(id).get_result(connection) {
-            Ok(user) => Some(user),
-            Err(_) => None
+            Ok(user) => Ok(user),
+            Err(_) => Err(Error::NotFound)
         }
     }
 
@@ -73,7 +81,7 @@ impl User {
 
 // 認証
 pub trait Authenticate<T> {
-    fn auth(c: T, connection: &SqliteConnection) -> Option<User>;
+    fn auth(c: T, connection: &SqliteConnection) -> Result<User, Error>;
 }
 
 pub struct BasicCredentials {
@@ -88,21 +96,21 @@ impl BasicCredentials {
 }
 
 impl Authenticate<BasicCredentials> for User {
-    fn auth(c: BasicCredentials, connection: &SqliteConnection) -> Option<User> {
+    fn auth(c: BasicCredentials, connection: &SqliteConnection) -> Result<User, Error> {
         match users::table.filter(users::username.eq(c.username)).first::<User>(connection) {
             Ok(user) => {
                 match is_correct_password(&c.password, &user.encrypted_password) {
-                    true => Some(user),
-                    false => None
+                    true => Ok(user),
+                    false => Err(Error::BadCredentials)
                 }
             },
-            Err(_) => None
+            Err(_) => Err(Error::Unknown)
         }
     }
 }
 
 impl Authenticate<AccessToken> for User {
-    fn auth(c: AccessToken, connection: &SqliteConnection) -> Option<User> {
+    fn auth(c: AccessToken, connection: &SqliteConnection) -> Result<User, Error> {
         User::get(c.user_id, &connection)
     }
 }
@@ -110,8 +118,11 @@ impl Authenticate<AccessToken> for User {
 
 // 文字列をtokenとして
 impl Authenticate<&String> for User {
-    fn auth(c: &String, connection: &SqliteConnection) -> Option<User> {
-        Self::auth(AccessToken::from_string(&c, &connection)?, &connection)
+    fn auth(c: &String, connection: &SqliteConnection) -> Result<User, Error> {
+        match AccessToken::from_string(&c, &connection) {
+            Some(access_token) => Self::auth(access_token, &connection),
+            None => Err(Error::InvalidAccessToken)
+        }
     }
 }
 
