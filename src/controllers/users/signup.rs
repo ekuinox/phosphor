@@ -1,6 +1,6 @@
 use diesel::sqlite::SqliteConnection;
 use serde::{Deserialize, Serialize};
-use crate::controllers::ResponseBase;
+use crate::controllers::{ResponseBase, Fail};
 use crate::models::user::{User, PrivateUserData, ToPrivate};
 
 #[derive(Debug, Serialize, Deserialize)]
@@ -21,7 +21,7 @@ impl Data {
     }
 }
 
-pub type Response = ResponseBase<Data, ()>;
+pub type Response = ResponseBase<Data>;
 
 pub fn signup(request: &Request, connection: &SqliteConnection) -> Response {
     if !request.username.is_ascii() {

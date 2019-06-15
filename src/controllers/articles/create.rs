@@ -2,7 +2,7 @@ use diesel::sqlite::SqliteConnection;
 use serde::{Deserialize, Serialize};
 use yyid::yyid_string;
 use crate::models::{access_token::AccessToken, user::User, user::Authenticate, article::Article, article::Accessible};
-use crate::controllers::ResponseBase;
+use crate::controllers::{ResponseBase, Fail};
 
 #[derive(Debug, Serialize, Deserialize)]
 pub struct Request {
@@ -24,7 +24,7 @@ impl Data {
     }
 }
 
-pub type Response = ResponseBase<Data, ()>;
+pub type Response = ResponseBase<Data>;
 
 pub fn create(request: &Request, connection: &SqliteConnection) -> Response {
     match User::auth(&request.token, &connection) {
