@@ -25,7 +25,7 @@ impl Response {
 }
 
 pub fn create(request: &Request, connection: &SqliteConnection) -> Response {
-    match AccessToken::auth(&request.token, &connection) {
+    match AccessToken::from_string(&request.token, &connection) {
         Some(access_token) => {
             match Article::new_with_now(
                 access_token.user_id.clone(),

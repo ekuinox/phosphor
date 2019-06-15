@@ -20,7 +20,7 @@ impl Response {
 }
 
 pub fn list(request: &Request, connection: &SqliteConnection) -> Response {
-    match AccessToken::auth(&request.token, &connection) {
+    match AccessToken::from_string(&request.token, &connection) {
         Some(access_token) => {
             match Article::get_list_by_user_id(access_token.user_id, 500, &connection) {
                 Some(permalinks) => Response::new(true, Some(permalinks)),

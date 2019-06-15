@@ -21,7 +21,7 @@ impl Response {
 }
 
 pub fn show(request: &Request, connection: &SqliteConnection) -> Response {
-    match AccessToken::auth(&request.token, &connection) {
+    match AccessToken::from_string(&request.token, &connection) {
         Some(access_token) => {
             match Article::get_by_permalink(request.permalink.clone(), &connection) {
                 Some(article) => Response::new(true, Some(article)),

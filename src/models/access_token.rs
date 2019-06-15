@@ -32,15 +32,12 @@ impl AccessToken {
         }
     }
 
-    pub fn auth(token: &String, connection: &SqliteConnection) -> Option<AccessToken> {
-        match access_tokens::table.find(&token).first::<AccessToken>(connection) {
-            Ok(access_token) => {
-                if Utc::now().naive_utc() - access_token.updated_at.unwrap() < chrono::Duration::hours(VALID_HOURS) {
-                    access_token.touch(connection);
-                    return Some(access_token);
-                }
-                return None;
-            },
+    pub fn from_string(token: &String, connection: &SqliteConnection) -> Option<AccessToken> {
+        match access_tokens::table
+            .filter(access_tokens::token.eq(&token)) // トークンが一致している
+            .filter(access_tokens::updated_at.gt(Utc::now().naive_utc() - chrono::Duration::hours(VALID_HOURS))) // 有効時間内（指定した時間より新しい）
+            .first::<AccessToken>(connection) {
+            Ok(access_token) => Some(access_token),
             Err(_) => None
         }
     }
